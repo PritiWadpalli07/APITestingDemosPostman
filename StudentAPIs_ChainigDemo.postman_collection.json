@@ -1,0 +1,196 @@
+{
+	"info": {
+		"_postman_id": "88003fa6-5d52-404a-9432-49cd309f3196",
+		"name": "StudentAPIs_ChainigDemo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38578745"
+	},
+	"item": [
+		{
+			"name": "Create Student",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", () => {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([201,202]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code name has string\", () => {\r",
+							" pm.response.to.have.status(\"Created\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"var jsonData=JSON.parse(responseBody);\r",
+							"\r",
+							"console.log(\"MyJsonData:\"+jsonData);\r",
+							"pm.collectionVariables.set(\"id\",jsonData.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"King\",\r\n    \"location\": \"France\",\r\n    \"phone\": \"1234567890\",\r\n    \"courses\": [\r\n      \"Java\",\r\n      \"Selenium\",\r\n      \"c++\"\r\n    ]\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/students",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"students"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Single Student",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							" pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Content-Type header is present\", () => {\r",
+							" pm.response.to.have.header(\"Content-Type\");\r",
+							"});\r",
+							"pm.test(\"Content-Type header is application/json\", () => {\r",
+							" pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json');\r",
+							"})\r",
+							"\r",
+							"// test on response body data\r",
+							"const jsonData=pm.response.json();\r",
+							"pm.test(\"Test data types of the response\",()=>{\r",
+							"  pm.expect(jsonData).to.be.an(\"object\") ; \r",
+							"  pm.expect(jsonData.name).to.be.a(\"string\");\r",
+							"  pm.expect(jsonData.courses).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate Array properties\",()=>{\r",
+							"    pm.expect(jsonData.courses).to.include(\"c++\");\r",
+							"    pm.expect(jsonData.courses).to.have.members([\"c++\",\"Java\",\"Selenium\"]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate field values\",()=>{\r",
+							"\r",
+							"    pm.expect(jsonData.name).to.be.eql(\"King\");\r",
+							"    pm.expect(jsonData.location).to.eql(\"France\");\r",
+							"    pm.expect(jsonData.courses[1]).to.be.eql(\"Selenium\");\r",
+							"\r",
+							"});\r",
+							"//validating schema of json \r",
+							"var schema={\r",
+							"  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+							"  \"type\": \"object\",\r",
+							"  \"properties\": {\r",
+							"    \"id\": {\r",
+							"      \"type\": \"string\"\r",
+							"    },\r",
+							"    \"name\": {\r",
+							"      \"type\": \"string\"\r",
+							"    },\r",
+							"    \"location\": {\r",
+							"      \"type\": \"string\"\r",
+							"    },\r",
+							"    \"phone\": {\r",
+							"      \"type\": \"string\"\r",
+							"    },\r",
+							"    \"courses\": {\r",
+							"      \"type\": \"array\",\r",
+							"      \"items\": [\r",
+							"        {\r",
+							"          \"type\": \"string\"\r",
+							"        },\r",
+							"        {\r",
+							"          \"type\": \"string\"\r",
+							"        },\r",
+							"        {\r",
+							"          \"type\": \"string\"\r",
+							"        }\r",
+							"      ]\r",
+							"    }\r",
+							"  },\r",
+							"  \"required\": [\r",
+							"    \"id\",\r",
+							"    \"name\",\r",
+							"    \"location\",\r",
+							"    \"phone\",\r",
+							"    \"courses\"\r",
+							"  ]\r",
+							"}\r",
+							"pm.test(\"Schema is valid\",function(){\r",
+							"    pm.expect(tv4.validate(jsonData,schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code name has String\",()=>{\r",
+							"    pm.expect(pm.response.status).to.be.oneOf([\"Created\",\"OK\"]);});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/students/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"students",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete student",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/students/{{id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"students",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": ""
+		}
+	]
+}
